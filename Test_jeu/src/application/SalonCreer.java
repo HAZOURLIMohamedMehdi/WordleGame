@@ -1,7 +1,15 @@
 package application;
 
+import java.io.File;
+
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -9,7 +17,10 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
 public class SalonCreer extends GridPane{
 
@@ -42,7 +53,35 @@ public class SalonCreer extends GridPane{
 		addRow(1, head);
 
 	}
+	void interactionRoom(Stage sc, Scene scene) {
+		option.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg) {
+				if (Room.objetRoom == null) {
+					Room.objetRoom = new Room();
+				}
+				playAudio("sound/sound.wav");
+				scene.setRoot(Room.objetRoom);
+				sc.setScene(scene);
+				responsivityRoom(sc,Room.objetRoom);
+			}
 
+		});
+
+	}
+	public void playAudio(final String filePath) {
+		File file = new File(filePath);
+		Media media = new Media(file.toURI().toString());
+		MediaPlayer mediaplayer = new MediaPlayer(media);
+		Task task = new Task<Void>() {
+			@Override
+			public Void call() {
+				mediaplayer.play();
+				return null;
+			}
+		};
+		new Thread(task).start();
+	}
 	void createButtonsOptions() {
 
 		option.setMinHeight(60);
@@ -98,5 +137,19 @@ public class SalonCreer extends GridPane{
 		//nomCode[0].setPadding(new Insets(0, 0, 0, 170));
 	}
 
+	public void responsivityRoom(Stage arg0, Room GP) {
+		arg0.widthProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> arg, Number arg1, Number arg2) {
+				if (arg1.doubleValue() < arg2.doubleValue()) {
+					GP.setMargin(GP.getBody(), new Insets(0, 0, 0, (arg2.doubleValue() - 750) / 2));
+				}
+				if (arg1.doubleValue() > arg2.doubleValue()) {
+					GP.setMargin(GP.getBody(), new Insets(0, 0, 0,
+							(arg2.doubleValue() - 750 - (arg1.doubleValue() - arg2.doubleValue())) / 2));
+				}
 
+			};
+		});
+	}
 }

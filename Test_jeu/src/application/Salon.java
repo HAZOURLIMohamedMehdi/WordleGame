@@ -67,6 +67,7 @@ public class Salon extends GridPane {
 			public void handle(ActionEvent arg) {
 				if (SalonCreer.objetSalonCreer == null) {
 					SalonCreer.objetSalonCreer = new SalonCreer();
+					SalonCreer.objetSalonCreer.interactionRoom(sc, scene);
 				}
 				playAudio("sound/sound.wav");
 				scene.setRoot(SalonCreer.objetSalonCreer);

@@ -63,6 +63,8 @@ public class Main extends Application{
 		scorepage.interactionPageInitialPage(arg0, initialpage, sc);
 		initialpage.interactionPageScorePage(arg0, scorepage, sc);
 		responsivityAcceuilPage(arg0,acceuilpage);
+		sc.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+
 		arg0.setScene(sc);
 		arg0.setMinWidth(750);
 		arg0.setMinHeight(650);
