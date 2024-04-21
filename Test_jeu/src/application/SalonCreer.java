@@ -29,7 +29,7 @@ public class SalonCreer extends GridPane{
 	private Label []nomCode;
 	private TextField nomSalon;
 	private VBox head;
-	
+	public static Server server;
 	public SalonCreer() {
 
 		super();
@@ -60,6 +60,13 @@ public class SalonCreer extends GridPane{
 				if (Room.objetRoom == null) {
 					Room.objetRoom = new Room();
 				}
+				
+				
+				server=new Server();
+				Client client=new Client("Akram");
+				client.startConnection();
+				Room.clients.add(client);
+				
 				playAudio("sound/sound.wav");
 				scene.setRoot(Room.objetRoom);
 				sc.setScene(scene);

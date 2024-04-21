@@ -54,8 +54,9 @@ public class MainPage extends GridPane {
 	Label notification = new Label();
 	Label errorName = new Label();
 	LoseOption LosePane;
-
+     public static Stage stage;
 	public MainPage(int size, Wordle jeu, LoseOption LosePane) {
+		
 		this.LosePane= LosePane;
 		this.jeu = jeu;
 		this.size = size;
@@ -203,6 +204,7 @@ public class MainPage extends GridPane {
 			}
 
 		});
+		stage=(Stage)labelsOfHead[0].getScene().getWindow();
 	}
 
 	/**

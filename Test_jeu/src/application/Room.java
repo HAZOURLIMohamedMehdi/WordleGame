@@ -33,16 +33,22 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
-public class Room extends GridPane{
-    public static Room objetRoom =null;
-	private ArrayList<HBox> players=new ArrayList<HBox>();
+public class Room extends GridPane {
+	public static Room objetRoom = null;
+	public static ArrayList<HBox> players = new ArrayList<HBox>();
 	private HBox header;
-	private VBox body=new VBox();
+	private static VBox body = new VBox();
 	private HBox head;
-	private Label [] labelsOfHead;
+	private Label[] labelsOfHead;
 	private ScrollPane scrollPane;
+	public static Thread threadVerifiyClients;
+	public static ArrayList<Client> clients = new ArrayList<Client>();
+	private Button startButton;
+
 	public Room() {
 		super();
+		startButton();
+		clientsThread();
 		initialPlayers();
 		initHead(70);
 		addRow(0, head);
@@ -55,28 +61,97 @@ public class Room extends GridPane{
 		scrollPane.setStyle("-fx-background-color:BLACK;-fx-border:none;");
 		setMargin(scrollPane, new Insets(100, 0, 0, 100));
 		addRow(1, scrollPane);
+		addRow(2, startButton);
 		desactive();
 	}
+
+	public void startButton() {
+		startButton = new Button("Start");
+		startButton.textFillProperty().set(Color.WHITE);
+		startButton.setBackground(Background.fill(Color.TRANSPARENT));
+		startButton.setMinHeight(60);
+		startButton.setMinWidth(150);
+		startButton.setStyle(
+				"-fx-border-color:#949494;-fx-pref-height:39px;-fx-pref-width:39px;-fx-font-size:25px;-fx-border-radius:7px;-fx-effect: dropshadow(gaussian, rgb(255,255,255), 10, 0, 0, 0);");
+		setMargin(startButton, new Insets(0, 0, 0, 300));
+		startButton.setOnAction(new EventHandler<ActionEvent>() {
+			
+			@Override
+			public void handle(ActionEvent arg0) {
+				MainPage mainGame=new MainPage(5,new Wordle(),null);
+				try {
+					Scene scene=new Scene(mainGame,750,700);
+					mainGame.jeu.longueurMotParDefault = 5;
+					mainGame.jeu.resetScoreWhenLoose();
+					mainGame.jeu.lancerTimer();
+					mainGame.jeu.tempsEcoule = 0;
+					mainGame.clearTimerCount();
+					mainGame.InitialtimerCount();
+					mainGame.timerCount(0);
+					mainGame.restore(5);
+					Server.sendMessage(mainGame.jeu.motChercher);
+					mainGame.desactive();
+					((Stage)startButton.getScene().getWindow()).setScene(scene);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	public static void clientsThread() {
+		threadVerifiyClients = new Thread(() -> {
+			Platform.runLater(() -> {
+				if (clients.size() == 1)
+					addPlayer(clients.get(clients.size() - 1).name, true, true);
+				else
+					addPlayer(clients.get(clients.size() - 1).name, true, false);
+
+				for (int i = 0; i < players.size(); i++) {
+					players.get(i).getChildren().get(1).setStyle(
+							"-fx-font-size:20px;-fx-effect: dropshadow(gaussian, rgb(255,255,255), 5, 0, 0, 0);");
+					((Label) players.get(i).getChildren().get(1)).textFillProperty().set(Color.WHITE);
+					if (players.get(i).getChildren().size() == 3) {
+						((Button) players.get(i).getChildren().get(2)).textFillProperty().set(Color.WHITE);
+						players.get(i).getChildren().get(2).setStyle(
+								"-fx-border-color:#949494;-fx-font-size:15px;-fx-border-radius:7px;-fx-effect: dropshadow(gaussian, rgb(255,255,255), 4, 0, 0, 0);");
+					}
+					players.get(i).setStyle(
+							"-fx-border-color:#949494;-fx-border-radius:7px;-fx-effect: dropshadow(gaussian, rgb(255,255,255), 4, 0, 0, 0);");
+					if (i == 0) {
+						players.get(i).setStyle(players.get(i).getStyle() + "-fx-border-style: dashed");
+					} else {
+						players.get(i).setStyle(players.get(i).getStyle() + "-fx-border-style: solid");
+
+					}
+				}
+
+			});
+
+		});
+		threadVerifiyClients.start();
+	}
+
 	public void initialPlayers() {
 		players.add(new HBox());
-		Circle circle =new Circle(40,40,38);
-		Label userName =new Label();
+		Circle circle = new Circle(40, 40, 38);
+		Label userName = new Label();
 		userName.setText("ADD BOT");
 
-		players.get(players.size()-1).getChildren().addAll(circle,userName);
+		players.get(players.size() - 1).getChildren().addAll(circle, userName);
 
-		players.get(players.size()-1).setPadding(new Insets(7, 0, 0, 220));
-		players.get(players.size()-1).setMargin(userName, new Insets(20, 0, 0, 0));
-		players.get(players.size()-1).setMinSize(550, 90);
-		body.getChildren().add(players.get(players.size()-1));
+		players.get(players.size() - 1).setPadding(new Insets(7, 0, 0, 220));
+		players.get(players.size() - 1).setMargin(userName, new Insets(20, 0, 0, 0));
+		players.get(players.size() - 1).setMinSize(550, 90);
+		body.getChildren().add(players.get(players.size() - 1));
 		body.setSpacing(20);
-		players.get(players.size()-1).setSpacing(20);
-		players.get(players.size()-1).setOnMouseClicked(new EventHandler<MouseEvent>() {
+		players.get(players.size() - 1).setSpacing(20);
+		players.get(players.size() - 1).setOnMouseClicked(new EventHandler<MouseEvent>() {
 
 			@Override
 			public void handle(MouseEvent arg0) {
 				Platform.runLater(() -> {
-					addPlayer("BOT",false,false);
+					addPlayer("BOT", false, false);
 					desactive();
 				});
 
@@ -85,20 +160,15 @@ public class Room extends GridPane{
 		});
 	}
 
-
-
-
-
 	public void initHead(int height) {
 		head = new HBox();
 		head.setMinHeight(height);
 		head.setPadding(new Insets(0, 0, 0, 30));
 		initLabelsOfHead();
-		ChoiceBox itemBar=new ChoiceBox();
+		ChoiceBox itemBar = new ChoiceBox();
 		itemBar.getItems().add("click me");
 		itemBar.setMinHeight(40);
 		itemBar.setMinWidth(170);
-
 
 		head.getChildren().add(this.labelsOfHead[0]);
 		head.setMargin(this.labelsOfHead[0], new Insets(10, 0, 0, 10));
@@ -109,11 +179,10 @@ public class Room extends GridPane{
 		head.getChildren().add(this.labelsOfHead[1]);
 		head.setMargin(this.labelsOfHead[1], new Insets(10, 0, 0, 90));
 
-
-
-		//	head.setMargin(this.labelsOfHead[1], new Insets(10, 0, 0, 20));
+		// head.setMargin(this.labelsOfHead[1], new Insets(10, 0, 0, 20));
 
 	}
+
 	public void initLabelsOfHead() {
 
 		labelsOfHead = new Label[2];
@@ -122,13 +191,10 @@ public class Room extends GridPane{
 		labelsOfHead[0].setMinHeight(45);
 		labelsOfHead[0].setMinWidth(350);
 
-
-
 		Image parameter = new Image("file:photo/parameter.png");
 		ImageView parameterImageView = new ImageView(parameter);
 		parameterImageView.setFitHeight(30);
 		parameterImageView.setFitWidth(30);
-
 
 		labelsOfHead[1] = new Label();
 		labelsOfHead[1].setMinHeight(45);
@@ -142,46 +208,51 @@ public class Room extends GridPane{
 			labelsOfHead[i].setFocusTraversable(false);
 		}
 	}
-	public void addPlayer(String name,boolean humain,boolean admin) {
+
+	public static void addPlayer(String name, boolean humain, boolean admin) {
 		players.add(new HBox());
-		Circle circle =new Circle(40,40,38);
-		Label userName =new Label();
+		Circle circle = new Circle(40, 40, 38);
+		Label userName = new Label();
 		userName.setText(name);
-		if(!admin) {
-			Button deleteOption =new Button("Delete");
+		if (!admin) {
+			Button deleteOption = new Button("Delete");
 			deleteOption.setBackground(Background.fill(Color.TRANSPARENT));
 			deleteOption.setMinHeight(40);
 			deleteOption.setMinWidth(110);
-			players.get(players.size()-1).getChildren().addAll(circle,userName,deleteOption);
-			players.get(players.size()-1).setMargin(deleteOption, new Insets(17, 0, 0, 220));
-		}else {
-			players.get(players.size()-1).getChildren().addAll(circle,userName);
+			players.get(players.size() - 1).getChildren().addAll(circle, userName, deleteOption);
+			players.get(players.size() - 1).setMargin(deleteOption, new Insets(17, 0, 0, 220));
+		} else {
+			players.get(players.size() - 1).getChildren().addAll(circle, userName);
 		}
-		players.get(players.size()-1).setPadding(new Insets(7, 0, 0, 25));
-		players.get(players.size()-1).setMargin(userName, new Insets(20, 0, 0, 0));
-		players.get(players.size()-1).setMinSize(550, 90);
-		body.getChildren().add(players.get(players.size()-1));
+		players.get(players.size() - 1).setPadding(new Insets(7, 0, 0, 25));
+		players.get(players.size() - 1).setMargin(userName, new Insets(20, 0, 0, 0));
+		players.get(players.size() - 1).setMinSize(550, 90);
+		body.getChildren().add(players.get(players.size() - 1));
 		body.setSpacing(20);
-		players.get(players.size()-1).setSpacing(20);
+		players.get(players.size() - 1).setSpacing(20);
 	}
 
 	public void active() {
 
 	}
+
 	public void desactive() {
 		setBackground(Background.fill(Color.BLACK));
-		for(int i=0;i<players.size();i++) {
-			players.get(i).getChildren().get(1).setStyle("-fx-font-size:20px;-fx-effect: dropshadow(gaussian, rgb(255,255,255), 5, 0, 0, 0);");
-			((Label)players.get(i).getChildren().get(1)).textFillProperty().set(Color.WHITE);
-			if(players.get(i).getChildren().size()==3) {
-				((Button)players.get(i).getChildren().get(2)).textFillProperty().set(Color.WHITE);
-				players.get(i).getChildren().get(2).setStyle("-fx-border-color:#949494;-fx-font-size:15px;-fx-border-radius:7px;-fx-effect: dropshadow(gaussian, rgb(255,255,255), 4, 0, 0, 0);");
+		for (int i = 0; i < players.size(); i++) {
+			players.get(i).getChildren().get(1)
+					.setStyle("-fx-font-size:20px;-fx-effect: dropshadow(gaussian, rgb(255,255,255), 5, 0, 0, 0);");
+			((Label) players.get(i).getChildren().get(1)).textFillProperty().set(Color.WHITE);
+			if (players.get(i).getChildren().size() == 3) {
+				((Button) players.get(i).getChildren().get(2)).textFillProperty().set(Color.WHITE);
+				players.get(i).getChildren().get(2).setStyle(
+						"-fx-border-color:#949494;-fx-font-size:15px;-fx-border-radius:7px;-fx-effect: dropshadow(gaussian, rgb(255,255,255), 4, 0, 0, 0);");
 			}
-			players.get(i).setStyle("-fx-border-color:#949494;-fx-border-radius:7px;-fx-effect: dropshadow(gaussian, rgb(255,255,255), 4, 0, 0, 0);");
-			if(i==0) {
-				players.get(i).setStyle(players.get(i).getStyle()+"-fx-border-style: dashed");
-			}else {
-				players.get(i).setStyle(players.get(i).getStyle()+"-fx-border-style: solid");
+			players.get(i).setStyle(
+					"-fx-border-color:#949494;-fx-border-radius:7px;-fx-effect: dropshadow(gaussian, rgb(255,255,255), 4, 0, 0, 0);");
+			if (i == 0) {
+				players.get(i).setStyle(players.get(i).getStyle() + "-fx-border-style: dashed");
+			} else {
+				players.get(i).setStyle(players.get(i).getStyle() + "-fx-border-style: solid");
 
 			}
 		}
@@ -189,10 +260,10 @@ public class Room extends GridPane{
 		this.labelsOfHead[1].setStyle(
 				"-fx-border-color:#949494;-fx-border-radius:7px;-fx-effect: dropshadow(gaussian, rgb(148, 148, 148), 10, 0, 0, 0);");
 
-
 	}
+
 	public VBox getBody() {
 		return body;
 	}
-	
+
 }
