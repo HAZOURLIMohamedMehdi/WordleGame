@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml">
+    <BarChart fx:id="barChart" title="Scores des Joueurs">
+        <xAxis>
+            <CategoryAxis fx:id="xAxis" label="Joueurs"/>
+        </xAxis>
+        <yAxis>
+            <NumberAxis fx:id="yAxis" label="Scores"/>
+        </yAxis>
+    </BarChart>
+</AnchorPane>

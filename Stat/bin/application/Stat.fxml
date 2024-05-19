@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="application.StatControler">
+    <center>
+        <VBox>
+            <BarChart fx:id="barChart" title="Scores des Joueurs">
+                <xAxis>
+                    <CategoryAxis fx:id="xAxis" label="Joueurs"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis fx:id="yAxis" label="Scores"/>
+                </yAxis>
+            </BarChart>
+            <LineChart fx:id="lineChart" title="Progression des Scores">
+                <xAxis>
+                    <CategoryAxis fx:id="lineChartXAxis" label="Parties"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis fx:id="lineChartYAxis" label="Scores"/>
+                </yAxis>
+            </LineChart>
+            <PieChart fx:id="pieChart" title="Répartition des Victoires"/>
+        </VBox>
+    </center>
+</BorderPane>
